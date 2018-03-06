@@ -1,29 +1,31 @@
-
-var port = process.env.PORT || 1337;
-var baseHost = process.env.WEBSITE_HOSTNAME || 'localhost';
+var port = process.env.PORT || 8000; 
 
 var http = require('http');
 var express = require('express');
+var bodyParser = require('body-parser');
 var swaggerize = require('swaggerize-express');
+var swaggerUi = require('swaggerize-ui'); 
+var path = require('path');
+var fs = require("fs");
+
+fs.existsSync = fs.existsSync || require('path').existsSync;
 
 var app = express();
 
 var server = http.createServer(app);
 
+app.use(bodyParser.json());
+
 app.use(swaggerize({
-    api: require('./api.json'),
-    docspath: '/swagger',
-    handlers: './handlers/'
+    api: path.resolve('./config/swagger.json'),
+    handlers: path.resolve('./handlers'),
+    docspath: '/swagger' 
 }));
 
-app.use('/', express.static(__dirname + '/html'));
+// change four
+app.use('/docs', swaggerUi({
+    docs: '/swagger'  
+}));
 
-server.listen(port, 'localhost', function () {
-  if (baseHost === 'localhost')
-  {
-    app.setHost(baseHost + ':' + port);
-  } else {
-    app.setHost(baseHost);
-  }
-    console.log("Server started ..");
+server.listen(port, function () { 
 });
